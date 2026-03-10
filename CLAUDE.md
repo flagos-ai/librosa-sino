@@ -1,3 +1,5 @@
+@../common/CLAUDE.md
+
 # librosa — CNPort 移植项目
 
 ## 项目简介
