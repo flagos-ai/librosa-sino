@@ -15,7 +15,7 @@ librosa 是一个用于音乐和音频分析的 Python 软件包，版本 **0.11
 - 音乐信号分解与分段
 
 - upstream: https://github.com/librosa/librosa
-- 公司仓库: code.iflytek.com/HY_CNPort/librosa.git
+- 公司仓库: codeup.aliyun.com/69b0f1246ec1ba182dc75e1c/HY_CNPort/librosa.git（~~旧：code.iflytek.com/HY_CNPort/librosa.git，已弃用~~）
 - 主跟踪分支: `main`
 - 许可证: ISC
 
@@ -227,21 +227,21 @@ cd /data/xuchen2/git/CNPort
 ./sync-upstream.sh
 ```
 
-### 推送到公司仓库（必须绕过代理）
+### 推送到公司仓库
 
 ```bash
-no_proxy="code.iflytek.com" NO_PROXY="code.iflytek.com" git push origin main
-no_proxy="code.iflytek.com" NO_PROXY="code.iflytek.com" git push origin platform/cuda
-no_proxy="code.iflytek.com" NO_PROXY="code.iflytek.com" git push origin platform/amd
-no_proxy="code.iflytek.com" NO_PROXY="code.iflytek.com" git push origin platform/apple
+git push origin main
+git push origin platform/cuda
+git push origin platform/amd
+git push origin platform/apple
 ```
 
 ### Remote 配置
 
 ```bash
 git remote -v
-# origin   code.iflytek.com/HY_CNPort/librosa.git  (公司仓库)
-# upstream https://github.com/librosa/librosa       (开源上游)
+# origin   codeup.aliyun.com/69b0f1246ec1ba182dc75e1c/HY_CNPort/librosa.git  (公司仓库)
+# upstream https://github.com/librosa/librosa                                 (开源上游)
 ```
 
 ### 验证移植是否正常
