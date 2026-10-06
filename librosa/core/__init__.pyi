@@ -1,3 +1,14 @@
+from . import (
+    audio,
+    constantq,
+    convert,
+    fft,
+    harmonic,
+    intervals,
+    notation,
+    pitch,
+    spectrum,
+)
 from .convert import (
     frames_to_samples as frames_to_samples,
     frames_to_time as frames_to_time,
