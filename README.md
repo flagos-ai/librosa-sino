@@ -84,7 +84,7 @@ arm64 主机将命令中的平台和镜像替换为 `linux/arm64` 及 arm64 镜�
 | 华为昇腾 CANN 8.5 | 2026-06-01 | unit+integration，收集阶段 | ❌ collection error：`No librosa.core attribute convert` | 需修复环境/源码导入问题后复测 |
 | 海光 BW1000 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，456.07 s | 原生全量通过 |
 | 寒武纪 MLU590 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，523 xfailed，44 xpassed | 原生全量通过 |
-| 摩尔线程 S5000 | 2026-07-23 | full，14,544 collected | ✅ 13,935 passed，0 failed，43 skipped，528 xfailed，38 xpassed | 原生全量通过 |
+| 摩尔线程 S5000 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，418.33 s | 原生全量通过 |
 | 阿里平头哥 | 2026-07-23 | full，14,544 collected | ✅ 13,935 passed，0 failed，43 skipped，528 xfailed，38 xpassed | 原生全量通过 |
 
 本次 Codeup `patches/base` 行是在独立 worktree 中完成的全量源码复验；平台历史结果文件位于本地测试归档目录 `common/general/survey_result/librosa-survey/`。发布前如重新执行，应以新报告中的源码提交和镜像 digest 更新本表。不同平台的测试数量只有在相同测试基线下才可比较，不能将某个平台的结果推断到其他平台。
