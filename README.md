@@ -49,7 +49,10 @@ python -m pip install -e .
 ```text
 amd64: open-audio-native-registry.cn-beijing.cr.aliyuncs.com/hy_cnport/librosa-cpu-py310:v1.0.0-amd64
 arm64: open-audio-native-registry.cn-beijing.cr.aliyuncs.com/hy_cnport/librosa-cpu-py310:v1.0.0-arm64
+ppu : open-audio-native-registry.cn-beijing.cr.aliyuncs.com/hy_cnport/librosa-ppu-py310:v1.0.0-amd64
 ```
+
+amd64/arm64 标准镜像基于 `python:3.10.16-slim`，仅含 librosa CPU 测试依赖；PPU 镜像基于 T-Head PPU 基础镜像（`base_images/ppu-base:cuda12.ppu-torch-2.5.1-py3.10`），在 CPU 依赖之上额外预置 PPU SDK 与 PPU 兼容版 torch 2.6.0/triton 3.2.0，镜像构建脚本见 `common/general/docker_envs/librosa-cpu-py310`（`./build_and_save.sh ppu`，需在 PPU 主机用 buildah/podman 执行）。
 
 建议固定使用镜像 tag 对应的 digest，并在测试报告中记录完整镜像地址、digest、源码提交、宿主机架构和依赖版本。公网环境使用上述地址；已接入阿里云 VPC 的机器可将仓库域名替换为 `open-audio-native-registry-vpc.cn-beijing.cr.aliyuncs.com`。
 
@@ -73,6 +76,41 @@ docker run --rm --platform linux/amd64 \
 
 arm64 主机将命令中的平台和镜像替换为 `linux/arm64` 及 arm64 镜像。测试完成后应保存 pytest 日志和汇总结果，至少记录收集、通过、失败、跳过、xfailed、xpassed 数量、耗时及失败用例详情。网络依赖测试应单独标记；离线验收使用仓库内置测试数据，不将网络可用性混入功能结论。
 
+### PPU 平台验证方式
+
+阿里平头哥 PPU（PPU-ZW810E）物理主机上没有 docker daemon，容器验证使用 podman 完成，并需将 PPU 设备显式挂入容器：
+
+```bash
+# 拉取 PPU 镜像并在容器内验证 PPU 可用性（内置校验脚本：
+# Python 3.10 / PPU SDK nvcc+ptxas / torch.cuda 探测 + 8×1 张量 PPU 冒烟）
+
+podman pull open-audio-native-registry.cn-beijing.cr.aliyuncs.com/hy_cnport/librosa-ppu-py310:v1.0.0-amd64
+
+podman run --rm --network host --shm-size=16g --cgroups=disabled \
+  --security-opt label=disable \
+  --device /dev/alixpu --device /dev/alixpu_ctl \
+  $(for d in /dev/alixpu_ppu*; do echo --device $d; done) \
+  -v /path/to/librosa-worktree:/workspace/librosa \
+  open-audio-native-registry.cn-beijing.cr.aliyuncs.com/hy_cnport/librosa-ppu-py310:v1.0.0-amd64 \
+  /usr/local/bin/validate-librosa-ppu
+
+# 通过校验后，在同一容器参数下执行原生全量测试
+
+podman run --rm --network host --shm-size=16g --cgroups=disabled \
+  --security-opt label=disable \
+  --device /dev/alixpu --device /dev/alixpu_ctl \
+  $(for d in /dev/alixpu_ppu*; do echo --device $d; done) \
+  -v /path/to/librosa-worktree:/workspace/librosa \
+  -v /path/to/librosa-pooch-cache:/root/.cache/librosa:ro \
+  -w /workspace/librosa \
+  -e MPLBACKEND=Agg \
+  -e CUDA_HOME=/usr/local/PPU_SDK/CUDA_SDK -e CUDA_PATH=/usr/local/PPU_SDK/CUDA_SDK \
+  open-audio-native-registry.cn-beijing.cr.aliyuncs.com/hy_cnport/librosa-ppu-py310:v1.0.0-amd64 \
+  bash -lc 'python -m pytest tests/ -v -ra'
+```
+
+与 CPU 平台的两点差异需要注意：一是 pooch 示例数据缓存建议以只读方式挂载到 `/root/.cache/librosa`，避免离线环境下少量网络用例因 librosa.org 下载超时被误计为功能失败；二是 PPU 容器需要 `--shm-size=16g --cgroups=disabled --security-opt label=disable` 及全部 `/dev/alixpu*` 设备挂载，缺省时容器内探测不到 PPU。镜像构建方式见上文镜像列表段落；PPU 平台的测试记录同样按下表格式登记。
+
 ## 平台测试结果
 
 下表汇总当前已保存的原生测试记录。`通过/收集` 只表示 pytest 通过用例数与收集用例数；`xfailed`、`xpassed` 和 `skipped` 按 pytest 原始结果保留。未通过或未完成的平台不应被描述为已支持。
@@ -85,7 +123,7 @@ arm64 主机将命令中的平台和镜像替换为 `linux/arm64` 及 arm64 镜�
 | 海光 BW1000 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，456.07 s | 原生全量通过 |
 | 寒武纪 MLU590 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，523 xfailed，44 xpassed | 原生全量通过 |
 | 摩尔线程 S5000 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，418.33 s | 原生全量通过 |
-| 阿里平头哥 | 2026-07-23 | full，14,544 collected | ✅ 13,935 passed，0 failed，43 skipped，528 xfailed，38 xpassed | 原生全量通过 |
+| 阿里平头哥 PPU-ZW810E | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，266.80 s | 原生全量通过 |
 
 本次 Codeup `patches/base` 行是在独立 worktree 中完成的全量源码复验；平台历史结果文件位于本地测试归档目录 `common/general/survey_result/librosa-survey/`。发布前如重新执行，应以新报告中的源码提交和镜像 digest 更新本表。不同平台的测试数量只有在相同测试基线下才可比较，不能将某个平台的结果推断到其他平台。
 
