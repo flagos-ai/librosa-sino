@@ -1,10 +1,10 @@
 # librosa CNPort
 
-librosa CNPort 基于上游 [librosa](https://github.com/librosa/librosa)，面向国产化软硬件环境的音频与音乐分析能力验证。在保持上游 Python API、音频处理语义和测试基线的前提下，本仓库跟踪阿里云 Codeup 的 `patches/base` 分支，并为 GitHub 开源发布补充国产化背景、评估口径和跨平台测试记录。
+librosa CNPort 基于上游 [librosa](https://github.com/librosa/librosa)，面向国产化软硬件环境的音频与音乐分析能力验证。在保持上游 Python API、音频处理语义和测试基线的前提下，本仓库补充国产化背景、评估口径和跨平台测试记录。
 
 上游原始说明保存在 [README_UPSTREAM.md](README_UPSTREAM.md)，许可证和引用信息以 [LICENSE.md](LICENSE.md) 及上游项目说明为准。
 
-当前同步基线：`patches/base` / `origin/patches/base`，提交 `f146a3f9`。上游项目：[librosa/librosa](https://github.com/librosa/librosa)。
+上游项目：[librosa/librosa](https://github.com/librosa/librosa)。
 
 ## 国产化背景
 
@@ -15,7 +15,7 @@ librosa 是 Python 原生音频和音乐信息检索库，覆盖音频加载、�
 - 保持上游 API、函数签名、输入输出语义和测试数据不变；
 - 优先验证原生 CPU/Python 路径，不以某一厂商的专用加速后端作为通过前提；
 - 在 NVIDIA、华为昇腾、海光、寒武纪、摩尔线程和阿里平头哥等环境分别执行，结果独立记录；
-- 通过 Codeup `patches/base` 作为同步基线，保留上游 README，方便后续差异审阅和版本同步。
+- 保留上游 README，方便后续差异审阅和版本同步。
 
 ## 安装与使用
 
@@ -117,7 +117,6 @@ podman run --rm --network host --shm-size=16g --cgroups=disabled \
 
 | 平台 | 最近记录 | 测试范围 | 结果 | 结论 |
 |---|---|---|---|---|
-| Codeup `patches/base` amd64 工作区 | 2026-10-06 | full，14,544 collected | ✅ 13,935 passed，0 failed，43 skipped，528 xfailed，38 xpassed | 当前基线全量复验通过 |
 | NVIDIA A40 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed | 原生全量通过 |
 | 华为昇腾 CANN 8.5 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，456.44 s | 原生全量通过 |
 | 海光 BW1000 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，456.07 s | 原生全量通过 |
@@ -125,7 +124,7 @@ podman run --rm --network host --shm-size=16g --cgroups=disabled \
 | 摩尔线程 S5000 | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，418.33 s | 原生全量通过 |
 | 阿里平头哥 PPU-ZW810E | 2026-10-13 | full，14,544 collected | ✅ 13,975 passed，0 failed，2 skipped，529 xfailed，38 xpassed，191 warnings，266.80 s | 原生全量通过 |
 
-本次 Codeup `patches/base` 行是在独立 worktree 中完成的全量源码复验；平台历史结果文件位于本地测试归档目录 `common/general/survey_result/librosa-survey/`。发布前如重新执行，应以新报告中的源码提交和镜像 digest 更新本表。不同平台的测试数量只有在相同测试基线下才可比较，不能将某个平台的结果推断到其他平台。
+本次源码基线是在独立 worktree 中完成的全量源码复验；平台历史结果文件位于本地测试归档目录 `common/general/survey_result/librosa-survey/`。发布前如重新执行，应以新报告中的源码提交和镜像 digest 更新本表。不同平台的测试数量只有在相同测试基线下才可比较，不能将某个平台的结果推断到其他平台。
 
 ## 上游与许可证
 
